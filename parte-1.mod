@@ -26,19 +26,19 @@ minimize coste__medio_fn_obj:
 
 /*RESTRICCIONES*/
 # cada caja debe de estar en una unica posicion
-s.t. UnaPosicionPorCaja{k in CAJA}:
+s.t. restriccion_posicion_por _caja{k in CAJA}:
     sum{i in FILA, j in COL} variable_posicion[k,i,j] = 1;
 
 # cada posicion solo dee tener una caja para ello lo comprobamos con variables_posicion, si hay se suma 1 y si no hay se suma 0, por lo que la suma de todas las cajas en una posicion debe ser 1.
-s.t. UnaCajaPorPosicion{i in FILA, j in COL}:
+s.t. Restriccion_caja_por_posicion{i in FILA, j in COL}:
     sum{k in CAJA} variable_posicion[k,i,j] = 1;
 
 # define que prioridad hay en cada posicion , por eso se le suma la prioridad de la caja por 1 si esta en esa posicion y por 0 si no esta, asi se obtiene la prioridad de la caja que esta en esa posicion.
-s.t. DefPrioridad{i in FILA, j in COL}:
+s.t. restriccion_definir_prioridad{i in FILA, j in COL}:
     Prioridad[i,j] = sum{k in CAJA} p[k]*variable_posicion[k,i,j];
 
 #para establecer un orden cada posicion tiene que tener encima una caja con mayor o igual prioridad , entendiendo con mayor prioridad la que tiene un numero mas bajo 
-s.t. OrdenPrioridad{i in FILA, j in COL: i < l}:
+s.t. restriccion_establecer_orden_prioridad{i in FILA, j in COL: i < l}:
     Prioridad[i,j] >= Prioridad[i+1,j];
 
 solve;
