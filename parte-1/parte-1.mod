@@ -3,7 +3,7 @@ Miguel Merino 100522156
 Pablo Garcia 100522190*/
 
 /*DATOS*/
-param l >= 1, integer;  # es el lado del pallet, se comprueba que es mayor o igual  que 1 entero
+param l >= 1, integer;  # es el lado del pallet
 
 /*CONJUNTOS*/
 set FILA;       # son las filas del pallet que se rellena en el dat
