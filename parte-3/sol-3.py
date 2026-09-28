@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-#sol-2.py Miguel Merino 100522156 , Pablo García 100522190
+#sol-3.py Miguel Merino 100522156 , Pablo García 100522190
 import os, re, subprocess, sys
 
-SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))# para tener la ruta de sol-2.py
-MODEL_FILE = os.path.join(SCRIPT_DIR, "parte-2.mod")#para unir con la otra ruta 
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))# para tener la ruta de sol-3.py
+MODEL_FILE = os.path.join(SCRIPT_DIR, "parte-3.mod")#para unir con la otra ruta 
 
 
 def resolver_ruta(ruta):
-    #creo una funcion por si tiene ruta absoluta si no tiene le pongo la ruta del sol-2.py 
+    #creo una funcion por si tiene ruta absoluta si no tiene le pongo la ruta del sol-3.py 
     if os.path.isabs(ruta) or os.path.dirname(ruta):
         return ruta
     return os.path.join(SCRIPT_DIR, ruta)
@@ -24,20 +24,22 @@ def leer_entrada(ruta_entrada):
     prioridades = list(map(int, lineas[1].split()))
     pesos = list(map(int, lineas[2].split()))
     capacidades = list(map(int, lineas[3].split()))
-    n = l * l * h
-    if len(prioridades) != n:
-        raise ValueError(f"Se esperaban: {n} prioridades, hay {len(prioridades)}")
+    n = len(prioridades) #ahora no el numero de cajas no es fijo , por lo que no hay que comprobar la n
+    # las tres lineas deben tener el mismo numero de valores porque cada caja necesita su prioridad, peso y capacidad
     if len(pesos) != n:
         raise ValueError(f"Se esperaban: {n} pesos, hay {len(pesos)}")
     if len(capacidades) != n:
         raise ValueError(f"Se esperaban: {n} capacidades, hay {len(capacidades)}")
+    # tiene que haber al menos una caja y no mas cajas que posiciones en el pallet
+    if n < 1 or n > l * l * h:
+        raise ValueError(f"El numero de cajas debe estar entre 1 y {l*l*h}, hay {n}")
     return l, h, prioridades, pesos, capacidades
 
 
 def generar_dat(ruta_dat, l, h, prioridades, pesos, capacidades):
     filas = " ".join(str(i) for i in range(1, l + 1))
     niveles = " ".join(str(z) for z in range(1, h + 1))   
-    cajas = " ".join(str(k) for k in range(1, l * l* h + 1))
+    cajas = " ".join(str(k) for k in range(1, len(prioridades) + 1))
     with open(ruta_dat, "w", encoding="utf-8") as f: #creo el fichero dat y escribo todo
         f.write("data;\n\n")
         f.write(f"param l := {l};\n\n")
@@ -105,27 +107,32 @@ def lectura_stdout_glpsol(stdout):#ahora para leer el stdout del glpsol y saber 
 
 def escribir_fichero_solucion(ruta_visual, l, h, diccionario_posicion_valor, prioridades, pesos, capacidades, objetivo):
     with open(ruta_visual, "w", encoding="utf-8") as f:#creo el fichero de la solucion
-        f.write("Se puede entrar por fila superior, la pared es la fila 1\n\n") #misma restriccion que parte 1
+        f.write("Se puede entrar por fila superior, la pared es la fila 1. Las posiciones vacias aparecen como 'vacia'\n\n") #misma restriccion que parte 1
         for z in range(1, h + 1):
             f.write(f"\nNivel {z}\n")
             for i in range(l, 0, -1):  # empiezo por la fila mas alta como en el parte 1 y bajo 
                 celdas = []
                 for j in range(1, l + 1):
                     k = diccionario_posicion_valor.get((i, j, z)) #la caja que hay en cada casilla de este nivel
-                    celdas.append(f"[p={prioridades[k-1]:>4} w={pesos[k-1]:>4} y={capacidades[k-1]:>4}]")
+                    if k is None:
+                        # (CAMBIA) si la posicion no esta en el diccionario es un hueco: no hay caja cuyos datos mostrar.
+                        # la dejo del mismo ancho que una casilla con caja (20 caracteres dentro) para que las columnas queden alineadas
+                        celdas.append(f"[{'vacia':^20}]")
+                    else:
+                        celdas.append(f"[p={prioridades[k-1]:>4} w={pesos[k-1]:>4} y={capacidades[k-1]:>4}]")
                 f.write(f"Fila {i}: " + " ".join(celdas) + "\n") #escribo la celda entera en una fila
         f.write(f"\nCoste medio: {objetivo:.4f}\n")
 
 
 def main():
     if len(sys.argv) != 3:
-        sys.stderr.write("Uso: ./sol-2.py fichero-entrada fichero-salida\n")
+        sys.stderr.write("Uso: ./sol-3.py fichero-entrada fichero-salida\n")
         sys.exit(1)
 
     ruta_entrada = resolver_ruta(sys.argv[1])
     ruta_dat = resolver_ruta(sys.argv[2])
 
-    l, h, prioridades, pesos, capacidades = leer_entrada(ruta_entrada)#leo la entrada y me devuelve el tamaño y las prioridades de las cajas
+    l, h, prioridades, pesos, capacidades = leer_entrada(ruta_entrada)
     generar_dat(ruta_dat, l, h, prioridades, pesos, capacidades)
 
     ruta_sol, stdout = llamar_glpsol(ruta_dat)#llamo a glpsol y me devuelve la ruta del fichero de solucion y el stdout de glpsol
