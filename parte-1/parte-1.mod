@@ -20,9 +20,9 @@ var variable_posicion{k in CAJA, i in FILA, j in COL} binary;
 var Prioridad{i in FILA, j in COL} >= 0; #prioridad de la caja que queda en la casilla (i,j); su valor lo fija DefPrioridad y sirve para comparar casillas en OrdenPrioridad
 
 /*FUNCION OBJETIVO*/
-#el coste de una caja es la suma de las prioridades de las cajas que tiene encima hasta llegar a la fila 1 donde i-1=0, por eso se multiplica la prioridad de la caja por (i-1) y se divide entre el numero de cajas para obtener el coste medio
+#el coste de una caja es la suma de las prioridades de las cajas que tiene encima hasta llegar a la fila 1 
 minimize coste__medio_fn_obj:
-    (1.0/card(CAJA)) * sum{k in CAJA, i in FILA, j in COL} p[k]*(i-1)*variable_posicion[k,i,j];
+    (1.0/card(CAJA)) * sum{i in FILA, j in COL, i2 in FILA, k in CAJA: i2 > i} p[k]*variable_posicion[k,i2,j];
 
 /*RESTRICCIONES*/
 # cada caja debe de estar en una unica posicion
