@@ -16,7 +16,7 @@ param p{k in CAJA}; #son la prioridad de las cajas se van rellenando en el dat p
 param w{k in CAJA}; #son los pesos de las cajas en gramos
 param y{k in CAJA}; #es la capacidad de cada caja en gramos
 param M := max{k in CAJA} p[k] + 1; #para poder hacer luego la restriccion de prioridad hago que M sea el mayor
-
+param M_coste := sum{k in CAJA} p[k];
 
 /*VARIABLES*/
 #variable_posicion la uso para comprobar si una caja k esta en alguna fila i y columna j y nivel z, si esta la variable_posicion=1 , si no esta variable_posicion=0  
@@ -28,13 +28,12 @@ var Peso{i in FILA, j in COL,z in NIVEL} >= 0; #peso de la caja que queda en la 
 
 var Capacidad{i in FILA, j in COL,z in NIVEL} >= 0; #capacidad de la caja que queda en la casilla (i,j,z); su valor lo fija DefCapacidad
 
-var Coste{i in FILA, j in COL, z in NIVEL} >= 0
+var Coste{i in FILA, j in COL, z in NIVEL} >= 0;
 
 /*FUNCION OBJETIVO*/
 #el coste de una caja es la suma de las prioridades de las cajas que tiene encima hasta llegar a la fila 1 donde i-1=0, por eso se multiplica la prioridad de la caja por (i-1) y se divide entre el numero de cajas para obtener el coste medio
 minimize coste__medio_fn_obj:
-    (1.0/card(CAJA)) * sum{k in CAJA, i in FILA, j in COL, z in NIVEL} p[k]*(i-1)*variable_posicion[k,i,j,z];
-
+    (1.0/card(CAJA)) * sum{i in FILA, j in COL, z in NIVEL} Coste[i,j,z];
 /*RESTRICCIONES*/
 # cada caja debe de estar en una unica posicion
 s.t. restriccion_posicion_por_caja{k in CAJA}:
@@ -64,7 +63,8 @@ s.t. restriccion_capacidad_peso{i in FILA, j in COL, z in NIVEL}:
 s.t. restriccion_colocacion_caja_vacio{i in FILA, j in COL, z in NIVEL: z < h}:
     sum{k in CAJA} variable_posicion[k,i,j,z] >= sum{k in CAJA} variable_posicion[k,i,j,z+1];
     
-
+s.t. restriccion_coste_objetivo{i in FILA, j in COL , z in NIVEL}:
+    Coste[i,j,z]>= sum{i2 in FILA, k in CAJA: i2 > i} p[k]*variable_posicion[k,i2,j,z]- M_coste * (1 - sum{k in CAJA} variable_posicion[k,i,j,z]); 
 
 solve;
 
