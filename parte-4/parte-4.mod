@@ -51,7 +51,7 @@ s.t. restriccion_posicion_por_caja{k in CAJA}:
 s.t. restriccion_caja_por_posicion{i in FILA, j in COL, z in NIVEL, t in PALLET}:
     sum{k in CAJA} variable_posicion[k,i,j,z,t] <= 1;
 
-#restriccion para que si no ese pallet no se usa que se quede vacio y si se usa 
+#restriccion para que si ese pallet no se usa se quede vacio y si se usa como mucho tenga l*l*h cajas
 s.t. restriccion_pallet_usado{t in PALLET}:
     sum{k in CAJA, i in FILA, j in COL, z in NIVEL} variable_posicion[k,i,j,z,t]<= card(FILA) * card(COL) * card(NIVEL) * pallet_usado[t];
 
