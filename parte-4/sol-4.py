@@ -90,13 +90,17 @@ def llamar_glpsol(ruta_dat):#usamos esto para llamar a glpsol y que nos de una s
 
 
 def lectura_text_sol(ruta_sol):
-    with open(ruta_sol, encoding="utf-8") as f:#abro el fichero solucion del glpsol y busco las filas, columnas y el objetivo con expresiones regulares
+    with open(ruta_sol, encoding="utf-8") as f:#abro el fichero solucion del glpsol y busco el estado, las filas, columnas y el objetivo con expresiones regulares
         contenido = f.read()
+    estado = re.search(r"Status:\s+(.+)", contenido).group(1).strip()
+    if "OPTIMAL" not in estado:  # si no hay solucion glpsol no falla, asi que hay que comprobarlo; si no, se imprimiria un 0.00 y un dibujo vacio que no son ninguna solucion
+        os.remove(ruta_sol)
+        sys.exit(f"No existe solucion factible para esta instancia ({estado})")
     filas = int(re.search(r"Rows:\s+(\d+)", contenido).group(1))
     columnas = int(re.search(r"Columns:\s+(\d+)", contenido).group(1)) 
-    objetivo = float(re.search(r"Objective:\s+\S+\s*=\s*([\-\d.eE]+)", contenido).group(1)) #paso el objetivo a float, para ello busco simplemente que puede estar en notaficacion cientifica o no, por eso pongo [\-\d.eE]+, o tanbien con coma por ser float
+    objetivo = float(re.search(r"Objective:\s+\S+\s*=\s*([\-\d.eE]+)", contenido).group(1)) #paso el objetivo a float, puede venir en notacion cientifica
     numero_variables = columnas
-    numero_restricciones = filas - 1
+    numero_restricciones = filas - 1  # glpsol cuenta la funcion objetivo como una fila mas
     return numero_variables, numero_restricciones, objetivo
 
 
