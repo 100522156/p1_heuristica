@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-#sol-4.py Miguel Merino 100522156 , Pablo García 100522190
+#sol-4.py Miguel Merino 100522156 , Pablo Garcia 100522190
 import os, re, subprocess, sys
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))# para tener la ruta de sol-4.py
