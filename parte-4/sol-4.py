@@ -55,7 +55,7 @@ def generar_dat(ruta_dat, l, h, P, prioridades, pesos, capacidades):
         f.write(f"set COL := {filas};\n")
         f.write(f"set NIVEL := {niveles};\n")
         f.write(f"set CAJA := {cajas};\n")
-        f.write(f"set PALLET := {pallets};\n\n")  #  pallets disponibles
+        f.write(f"set PALLET := {pallets};\n\n")  # pallets disponibles
         f.write("param p :=\n")
         k = 1      
         for p in prioridades:  

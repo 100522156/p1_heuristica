@@ -5,7 +5,7 @@ Pablo Garcia 100522190*/
 /*DATOS*/
 param l >= 1, integer;  # es el lado del pallet
 param h >= 1, integer;  # es el numero maximo de niveles de cada pallet
-param P >= 0;           # (NUEVO) coste de montar cada pallet, igual para todos
+param P >= 0;           # coste de montar cada pallet, igual para todos
 
 /*CONJUNTOS*/
 set FILA;   # son las filas del pallet 
@@ -37,7 +37,7 @@ var Coste{i in FILA, j in COL, z in NIVEL, t in PALLET} >= 0; #suma de prioridad
 var pallet_usado{t in PALLET} binary;
 
 /*FUNCION OBJETIVO*/
-# (CAMBIA) ahora se minimiza el coste TOTAL, no el medio (asi lo pide el enunciado): la suma del coste de todas las
+#ahora se minimiza el coste TOTAL, no el medio (asi lo pide el enunciado): la suma del coste de todas las
 # posiciones de todos los pallets, mas P por cada pallet montado. Por eso ya no se divide entre el numero de cajas
 minimize coste_total_fn_obj:
     sum{i in FILA, j in COL, z in NIVEL, t in PALLET} Coste[i,j,z,t] + P * sum{t in PALLET} pallet_usado[t];
@@ -51,7 +51,7 @@ s.t. restriccion_posicion_por_caja{k in CAJA}:
 s.t. restriccion_caja_por_posicion{i in FILA, j in COL, z in NIVEL, t in PALLET}:
     sum{k in CAJA} variable_posicion[k,i,j,z,t] <= 1;
 
-#restriccion para que si no ese pallet no se usa que se quede vacio y si se usa , poner tantas cajas como l*l*h
+#restriccion para que si no ese pallet no se usa que se quede vacio y si se usa 
 s.t. restriccion_pallet_usado{t in PALLET}:
     sum{k in CAJA, i in FILA, j in COL, z in NIVEL} variable_posicion[k,i,j,z,t]<= card(FILA) * card(COL) * card(NIVEL) * pallet_usado[t];
 
@@ -89,7 +89,7 @@ s.t. restriccion_coste_objetivo{i in FILA, j in COL, z in NIVEL, t in PALLET}:
 
 solve;
 
-/* (CAMBIA) salida con formato fijo, ahora tambien con el pallet: ASIG fila columna nivel pallet caja */
+/*salida con formato fijo, ahora tambien con el pallet: ASIG fila columna nivel pallet caja */
 printf {i in FILA, j in COL, z in NIVEL, t in PALLET, k in CAJA: variable_posicion[k,i,j,z,t] > 0.5} "ASIG %d %d %d %d %d\n", i, j, z, t, k;
 
 end;
