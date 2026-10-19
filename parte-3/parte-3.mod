@@ -22,16 +22,15 @@ param M_coste := sum{k in CAJA} p[k];
 #variable_posicion la uso para comprobar si una caja k esta en alguna fila i y columna j y nivel z, si esta la variable_posicion=1 , si no esta variable_posicion=0  
 var variable_posicion{k in CAJA, i in FILA, j in COL, z in NIVEL} binary;
 
-var Prioridad{i in FILA, j in COL,z in NIVEL} >= 0; #prioridad de la caja que queda en la casilla (i,j,z); su valor lo fija DefPrioridad y sirve para comparar casillas en OrdenPrioridad
+var Prioridad{i in FILA, j in COL,z in NIVEL} >= 0;  # prioridad de la casilla (i,j,z), M si esta vacia; la fija restriccion_definir_prioridad y se usa en restriccion_establecer_orden_prioridad
 
-var Peso{i in FILA, j in COL,z in NIVEL} >= 0; #peso de la caja que queda en la casilla (i,j,z); su valor lo fija DefPeso 
+var Peso{i in FILA, j in COL,z in NIVEL} >= 0; # peso de la caja de la casilla (i,j,z), 0 si esta vacia; lo fija restriccion_definir_peso
 
-var Capacidad{i in FILA, j in COL,z in NIVEL} >= 0; #capacidad de la caja que queda en la casilla (i,j,z); su valor lo fija DefCapacidad
-
-var Coste{i in FILA, j in COL, z in NIVEL} >= 0;
+var Capacidad{i in FILA, j in COL,z in NIVEL} >= 0; # capacidad de la caja de la casilla (i,j,z), 0 si esta vacia; la fija restriccion_definir_capacidad
+var Coste{i in FILA, j in COL, z in NIVEL} >= 0; # suma de prioridades de las cajas de delante, 0 si la casilla esta vacia; lo fija restriccion_coste_objetivo
 
 /*FUNCION OBJETIVO*/
-#el sumatorio de los costes  dividio de las cajas , es la suma de las prioridades de las cajas de delante (i2>i)
+# coste medio: suma del coste de todas las casillas (las vacias valen 0) dividida entre el numero de cajas
 minimize coste__medio_fn_obj:
     (1.0/card(CAJA)) * sum{i in FILA, j in COL, z in NIVEL} Coste[i,j,z];
 
